@@ -1,0 +1,14 @@
+out
+dist
+node_modules
+.vscode-test/
+*.vsix
+.yarn
+
+/vscode.proposed.d.ts
+/vscode.d.ts
+.DS_Store
+
+out/
+out-cov/
+coverage-reports/

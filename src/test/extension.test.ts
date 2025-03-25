@@ -16,12 +16,15 @@ import * as vscode from "vscode";
 import { CustomAuth, CustomAuthParams } from "../customAuth";
 
 suite("Extension Test Suite", () => {
-  test("should return ConnectionOptions", async () => {
+  test("should return modified params for kdb+ connections", async () => {
     const extension = vscode.extensions.getExtension("KX.kdb-auth");
     assert.ok(extension);
     const api: CustomAuth = await extension.activate();
     assert.ok(api);
-    const params: CustomAuthParams = { label: "localhost:5001 [local]" };
+    const params: CustomAuthParams = {
+      name: "localhost:5001 [local]",
+      labels: [],
+    };
     const custom = await api.auth(params);
     assert.ok("kdb" in custom);
   });

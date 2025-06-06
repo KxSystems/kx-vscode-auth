@@ -26,14 +26,13 @@ Before proceeding, ensure you meet the following prerequisites:
 
 1. Clone the custom authentication extension
 
-<!-- **TODO** Can we provide how to do that? Is the below correct? -->
+    <!-- **TODO** Can we provide how to do that? Is the below correct? -->
 
-Open a terminal in your VSCode Studio and run the following command:
-
-```sh
-git clone https://github.com/KxSystems/kx-vscode-auth.git
-cd kx-vscode-auth
-```
+    Open a terminal in your VSCode Studio and run the following command:
+    ```sh
+    git clone https://github.com/KxSystems/kx-vscode-auth.git
+    cd kx-vscode-auth
+    ```
 
 1. Customize the authentication logic
 

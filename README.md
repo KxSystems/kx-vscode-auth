@@ -1,10 +1,21 @@
-# Customized authentication for kdb VS Code extension
+# Customized Authentication for kdb VS Code Extension
 
 This guide provides a template for implementing customized authentication in the [kdb VS Code extension](https://github.com/KxSystems/kx-vscode).
 
 Customized authentication for the [kdb VS Code extension](https://github.com/KxSystems/kx-vscode) allows integration with external identity providers or custom logic for authenticating kdb+ connections.
 
-**Important notes:**
+## Prerequisites
+
+Before proceeding, ensure you meet the following prerequisites:
+
+- You must clone the [kx-vscode-auth](https://github.com/KxSystems/kx-vscode-auth) repo abd build the `vsix` extension yourself.
+- You must manually install the generated `.vsix` file into your local or target VS Code instance.
+- You must have `npm` installed
+- You must write your own authentication logic in TypeScript by customizing the provided template
+
+<!-- Are there any other dependencies we should add? -->
+
+## Important notes
 
 - Custom authentication is supported only for kdb+ connections.
 - The provided sample extension must be customized and compiled for your use case. It does not work out-of-the-box.
@@ -13,10 +24,23 @@ Customized authentication for the [kdb VS Code extension](https://github.com/KxS
 
 ## Set up instructions
 
+1. Clone the custom authentication extension
+
+<!-- **TODO** Can we provide how to do that? Is the below correct? -->
+
+Open a terminal in your VSCode Studio and run the following command:
+
+```sh
+git clone https://github.com/KxSystems/kx-vscode-auth.git
+cd kx-vscode-auth
+```
+
 1. Customize the authentication logic
 
     - Modify the `auth` function in [extension.ts](https://github.com/KxSystems/kx-vscode-auth/blob/main/src/extension.ts) to implement your specific custom authentication logic.
     - The kdb VS Code extension passes the configuration parameters to `auth`, as defined in [customAuth.ts](https://github.com/KxSystems/kx-vscode-auth/blob/main/src/customAuth.ts).
+
+    <!-- **TODO** Can we add an example here? -->
 
 2. Build the extension
 
@@ -47,3 +71,7 @@ A basic test case is provided in [extension.test.ts](https://github.com/KxSystem
 Do **not** change the extension `name` and `publisher` in [package.json](https://github.com/KxSystems/kx-vscode-auth/blob/main/package.json) unless you are intentionally creating a distinct extension identity.
 
 By following this guide and tailoring the sample code, you can implement secure and flexible authentication for your kdb+ workflows within VS Code.
+
+## Example custom authentication
+
+<!-- **TODO** Can we add a simple example of a working externally developed auth? -->

@@ -62,7 +62,7 @@ A basic test case is provided in [extension.test.ts](https://github.com/KxSystem
 
 ## Configuration guidelines
 
-Do **not** change the extension `name` and `publisher` in [package.json](https://github.com/KxSystems/kx-vscode-auth/blob/main/package.json) unless you are intentionally creating a distinct extension identity.
+Do **not** change the extension `name` and `publisher` in [package.json](https://github.com/KxSystems/kx-vscode-auth/blob/main/package.json).
 
 By following this guide and tailoring the sample code, you can implement secure and flexible authentication for your kdb+ workflows within VS Code.
 

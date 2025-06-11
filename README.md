@@ -8,12 +8,10 @@ Customized authentication for the [kdb VS Code extension](https://github.com/KxS
 
 Before proceeding, ensure you meet the following prerequisites:
 
-- You must clone the [kx-vscode-auth](https://github.com/KxSystems/kx-vscode-auth) repo abd build the `vsix` extension yourself.
+- You must have Node.js and `npm` installed
+- You must clone the [kx-vscode-auth](https://github.com/KxSystems/kx-vscode-auth) repo and build the `vsix` extension yourself.
 - You must manually install the generated `.vsix` file into your local or target VS Code instance.
-- You must have `npm` installed
 - You must write your own authentication logic in TypeScript by customizing the provided template
-
-<!-- Are there any other dependencies we should add? -->
 
 ## Important notes
 
@@ -26,20 +24,17 @@ Before proceeding, ensure you meet the following prerequisites:
 
 1. Clone the custom authentication extension
 
-    <!-- **TODO** Can we provide how to do that? Is the below correct? -->
-
     Open a terminal in your VSCode Studio and run the following command:
     ```sh
     git clone https://github.com/KxSystems/kx-vscode-auth.git
     cd kx-vscode-auth
+    npm install
     ```
 
 1. Customize the authentication logic
 
     - Modify the `auth` function in [extension.ts](https://github.com/KxSystems/kx-vscode-auth/blob/main/src/extension.ts) to implement your specific custom authentication logic.
     - The kdb VS Code extension passes the configuration parameters to `auth`, as defined in [customAuth.ts](https://github.com/KxSystems/kx-vscode-auth/blob/main/src/customAuth.ts).
-
-    <!-- **TODO** Can we add an example here? -->
 
 2. Build the extension
 
@@ -73,4 +68,88 @@ By following this guide and tailoring the sample code, you can implement secure 
 
 ## Example custom authentication
 
-<!-- **TODO** Can we add a simple example of a working externally developed auth? -->
+This is an example authentication with https://portier.github.io/
+
+`src/portier.ts`
+
+```typescript
+import * as vscode from "vscode";
+import Fastify from "fastify";
+import formPlugin from "@fastify/formbody";
+import { pickPort } from "pick-port";
+export function authenticate(timeout: number) {
+  return new Promise<string>(async (resolve, reject) => {
+    const port = await pickPort({ type: "tcp" });
+    const Client = await import("portier");
+    const portier = new Client.default({
+      redirectUri: `http://localhost:${port}/verify`,
+    });
+    const app = Fastify();
+    app.register(formPlugin);
+    app.get("/", (req, res) => {
+      res.type("text/html");
+      return `
+        <p>Enter your email address:</p>
+        <form method="post" action="/auth">
+          <input name="email" type="email">
+          <button type="submit">Login</button>
+        </form>
+      `;
+    });
+    app.post("/auth", async (req, res) => {
+      const body = req.body as any;
+      const authUrl = await portier.authenticate(body.email);
+      res.redirect(authUrl, 303);
+    });
+    app.post("/verify", async (req, res) => {
+      const body = req.body as any;
+      if (body.error) {
+        reject(body.error);
+        res.type("text/html");
+        return `
+          <p>Error: ${body.error_description}</p>
+        `;
+      }
+      try {
+        // TODO:BEGIN This should be done in the .z.pw callback
+        await portier.verify(body.id_token);
+        // TODO:END
+        resolve(body.id_token);
+        res.type("text/html");
+        return `
+          <p>Obtained token!</p>
+        `;
+      } catch (error) {
+        reject(error);
+      }
+    });
+    await app.listen({ port });
+    setTimeout(() => {
+      reject("Timeout");
+      app.close();
+    }, timeout);
+    await vscode.env.openExternal(
+      vscode.Uri.parse(`http://localhost:${port}/`)
+    );
+  });
+}
+```
+`src/extension.ts`
+```typescript
+import * as vscode from "vscode";
+import { CustomAuth, CustomAuthParams } from "./customAuth";
+import { authenticate } from "./portier";
+async function auth(
+  params: CustomAuthParams
+): Promise<Partial<CustomAuthParams>> {
+  const token = await authenticate(1000 * 60 * 10);
+  return { kdb: { user: token } };
+}
+export function activate(context: vscode.ExtensionContext) {
+  const api: CustomAuth = {
+    auth,
+  };
+  return api;
+}
+export function deactivate() {}
+```

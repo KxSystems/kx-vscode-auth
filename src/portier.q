@@ -1,4 +1,4 @@
-/*
+/
  * Copyright (c) 1998-2025 Kx Systems Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the
@@ -9,24 +9,29 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
- */
+\
 
-import * as vscode from "vscode";
-import { CustomAuth, CustomAuthParams } from "./customAuth";
-import { authenticate } from "./portier";
+\d .portier
 
-async function auth(
-  params: CustomAuthParams
-): Promise<Partial<CustomAuthParams>> {
-  const token = await authenticate(1000 * 60 * 10);
-  return { kdb: { user: "", password: token } };
-}
+get_keys: {
+  config: .j.k "" sv system "curl -s https://broker.portier.io/.well-known/openid-configuration";
+  system "curl -s -o portier_keys.json ",config[`jwks_uri];
+  }
 
-export function activate(context: vscode.ExtensionContext) {
-  const api: CustomAuth = {
-    auth,
-  };
-  return api;
-}
+verify: {[token]
+  get_keys[];
+  decode: "jwt decode --alg RS256 --secret @portier_keys.json --json ",token;
+  result: system decode;
+  decoded: .j.k "" sv result;
+  decoded[`payload][`email]
+  }
 
-export function deactivate() {}
+\d .
+
+.z.pw:{[ignore; token] 
+  email: @[.portier.verify; token; "error"];
+  show email;
+  $[email ~ "error"; 0b; 1b]
+  }
+
+"Authentication enabled!"

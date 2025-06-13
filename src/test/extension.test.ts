@@ -16,7 +16,8 @@ import * as vscode from "vscode";
 import { CustomAuth, CustomAuthParams } from "../customAuth";
 
 suite("Extension Test Suite", () => {
-  test("should return modified params for kdb+ connections", async () => {
+  test("should reject for undefined token", async function () {
+    this.timeout(60 * 1000);
     const extension = vscode.extensions.getExtension("KX.kdb-auth");
     assert.ok(extension);
     const api: CustomAuth = await extension.activate();
@@ -25,7 +26,12 @@ suite("Extension Test Suite", () => {
       name: "localhost:5001 [local]",
       labels: [],
     };
-    const custom = await api.auth(params);
-    assert.ok("kdb" in custom);
+    const custom = api.auth(params);
+    for (let i = 10000; i <= 10100; i++) {
+      try {
+        await fetch(`http://localhost:${i}/verify`, { method: "POST" });
+      } catch (error) {}
+    }
+    await assert.rejects(custom, new Error("Authentication failed!"));
   });
 });

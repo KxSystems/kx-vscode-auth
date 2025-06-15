@@ -15,14 +15,14 @@
 
 get_keys: {[url]
   config: .j.k raze system ("curl -s ",url),"/.well-known/openid-configuration";
-  system "curl -s -o jwks.json ",config[`jwks_uri];
+  system "curl -s -o jwks.json ",config`jwks_uri;
   }
 
 verify: {[token]
   get_keys["https://broker.portier.io"];
   decode: "jwt decode --alg RS256 --secret @jwks.json --json ",token;
   decoded: .j.k raze system decode;
-  decoded[`payload][`email]
+  (decoded`payload)`email
   }
 
 \d .

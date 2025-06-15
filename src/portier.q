@@ -13,14 +13,14 @@
 
 \d .portier
 
-get_keys: {
-  config: .j.k raze system "curl -s https://broker.portier.io/.well-known/openid-configuration";
-  system "curl -s -o portier_keys.json ",config[`jwks_uri];
+get_keys: {[url]
+  config: .j.k raze system ("curl -s ",url),"/.well-known/openid-configuration";
+  system "curl -s -o jwks.json ",config[`jwks_uri];
   }
 
 verify: {[token]
-  get_keys[];
-  decode: "jwt decode --alg RS256 --secret @portier_keys.json --json ",token;
+  get_keys["https://broker.portier.io"];
+  decode: "jwt decode --alg RS256 --secret @jwks.json --json ",token;
   decoded: .j.k raze system decode;
   decoded[`payload][`email]
   }
